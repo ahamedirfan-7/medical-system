@@ -1,0 +1,199 @@
+/* ================= RESET ================= */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* ================= LOGIN SECTION ================= */
+#auth-section {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8%;
+  z-index: 9999;
+  background:
+    linear-gradient(rgba(0,140,255,0.25), rgba(0,0,0,0.35)),
+    url("manage.png") center / cover no-repeat;
+}
+
+/* ================= LOGIN CARD ================= */
+.auth-card {
+  background: rgba(255,255,255,0.97);
+  width: 360px;
+  padding: 28px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+
+/* ================= INPUTS ================= */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 9px;
+  border: 1px solid #d0d7e2;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2b7cff;
+}
+
+/* ================= BUTTON ================= */
+button {
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 9px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #2b7cff, #4fa3ff);
+}
+
+/* ================= AFTER LOGIN BACKGROUND ================= */
+body.logged-in {
+  background: url("bg-medical.png") center / cover no-repeat fixed;
+  position: relative;
+}
+
+body.logged-in::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.12);
+  z-index: -1;
+}
+
+/* ================= APP ================= */
+#app {
+  display: flex;
+  height: 100vh;
+  background: transparent;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  width: 220px;
+  padding: 20px;
+  color: white;
+  background: rgba(0, 60, 120, 0.75);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  margin: 0 0 25px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-align: left;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.sidebar button.logout {
+  margin-top: auto;
+  width: 75%;
+  align-self: center;
+  padding: 10px;
+  font-size: 14px;
+  background: linear-gradient(135deg, #ef4444, #f87171);
+}
+
+/* ================= CONTENT ================= */
+.content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  margin: 15px;
+  background: rgba(255,255,255,0.30);
+  border-radius: 14px;
+}
+
+/* ================= DASHBOARD ================= */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.dash-card {
+  background: rgba(255,255,255,0.38);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+/* ================= TABLE (🔥 FIXED ONLY HERE 🔥) ================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255,255,255,0.38);
+  border-radius: 12px;
+  overflow: hidden; /* IMPORTANT */
+}
+
+/* header */
+thead th {
+  padding: 14px;
+  text-align: left;
+  font-weight: bold;
+  background: rgba(255,255,255,0.55);
+}
+
+/* body */
+tbody td {
+  padding: 14px;
+  text-align: left;
+  vertical-align: middle;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+/* availability center */
+th.availability,
+td.availability {
+  text-align: center;
+  width: 160px;
+}
+
+/* action column */
+th.action,
+td.action {
+  width: 90px;
+  text-align: center;
+}
+
+/* ================= QR ================= */
+#qr-box {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255,255,255,0.38);
+  border-radius: 12px;
+}
+.switch span {
+  cursor: pointer;
+  color: #2b7cff;
+  font-weight: 600;
+}
+.switch span:hover {
+  text-decoration: underline;
+}
