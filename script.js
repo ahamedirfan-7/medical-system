@@ -18,13 +18,18 @@ if (!usersInit.find(u => u.username === "admin")) {
 /* ================= PAGE LOAD ================= */
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("isLoggedIn") === "true") {
-
-    /* 🔥 FIX 1: background show after refresh */
     document.body.classList.add("logged-in");
-
     $("auth-section").style.display = "none";
     $("app").style.display = "flex";
-    showView("dashboard");
+   const role = localStorage.getItem("currentRole");
+
+if (role === "doctor") {
+  showView("doctor-dashboard");
+  loadDoctorDashboard();
+} else {
+  showView("dashboard");
+}
+
     refreshAll();
   }
 });
@@ -74,20 +79,28 @@ $("login-form")?.addEventListener("submit", e => {
   }
 
   localStorage.setItem("isLoggedIn", "true");
-
-  /* 🔥 FIX 2: background show immediately after login */
   document.body.classList.add("logged-in");
 
   $("auth-section").style.display = "none";
   $("app").style.display = "flex";
+const role = user.role;
+localStorage.setItem("currentRole", role);
+localStorage.setItem("currentUser", user.username);
+
+if (role === "doctor") {
+  showView("doctor-dashboard");
+  loadDoctorDashboard();
+} else {
   showView("dashboard");
+}
+
   refreshAll();
 });
 
 /* LOGOUT */
 $("logout")?.addEventListener("click", () => {
   localStorage.removeItem("isLoggedIn");
-  document.body.classList.remove("logged-in"); // clean
+  document.body.classList.remove("logged-in");
   location.reload();
 });
 
@@ -103,8 +116,18 @@ function showView(id) {
 }
 
 document.querySelectorAll("[data-view]").forEach(btn => {
-  btn.onclick = () => showView(btn.dataset.view);
+  btn.onclick = () => {
+    const role = localStorage.getItem("currentRole");
+
+    if (role === "doctor" && btn.dataset.view === "dashboard") {
+      showView("doctor-dashboard");
+      loadDoctorDashboard();
+    } else {
+      showView(btn.dataset.view);
+    }
+  };
 });
+
 
 /* ================= DASHBOARD ================= */
 function loadDashboard() {
@@ -158,7 +181,7 @@ function deleteDoctor(i) {
   refreshAll();
 }
 
-/* ================= PATIENTS ================= */
+/* ================= PATIENTS (🔥 FIXED) ================= */
 $("patient-form")?.addEventListener("submit", e => {
   e.preventDefault();
   const dIndex = $("p-doctor").value;
@@ -170,6 +193,8 @@ $("patient-form")?.addEventListener("submit", e => {
   patients.push({
     name: $("p-name").value.trim(),
     age: $("p-age").value,
+    gender: $("p-gender").value,
+    complaint: $("p-complaint").value.trim(),
     doctor: doctors[dIndex].name
   });
 
@@ -188,6 +213,8 @@ function loadPatients() {
       <tr>
         <td>${p.name}</td>
         <td>${p.age}</td>
+        <td>${p.gender || "-"}</td>
+        <td>${p.complaint || "-"}</td>
         <td>${p.doctor}</td>
         <td><button onclick="deletePatient(${i})">🗑</button></td>
       </tr>`;
@@ -212,7 +239,7 @@ function handlePaymentUI() {
   }
 }
 
-/* ================= APPOINTMENT ================= */
+/* ================= APPOINTMENTS ================= */
 let pendingAppointment = null;
 
 $("appointment-form")?.addEventListener("submit", e => {
@@ -226,14 +253,6 @@ $("appointment-form")?.addEventListener("submit", e => {
 
   if (!p || !d || !date || !fees || !payment)
     return alert("Fill all fields");
-
-  if (payment === "Card") {
-    if (
-      !$("card-number").value ||
-      !$("card-expiry").value ||
-      !$("card-cvv").value
-    ) return alert("Enter full card details");
-  }
 
   const patients = JSON.parse(localStorage.getItem("patients"));
   const doctors = JSON.parse(localStorage.getItem("doctors"));
@@ -277,7 +296,7 @@ function finalizeAppointment() {
   refreshAll();
 }
 
-/* ================= APPOINTMENT LIST + DELETE ================= */
+/* ================= APPOINTMENT LIST ================= */
 function loadAppointments() {
   const appointments = JSON.parse(localStorage.getItem("appointments"));
   $("appointment-list").innerHTML = "";
@@ -310,8 +329,8 @@ function generateReceipt(app) {
 
   doc.setFontSize(18);
   doc.text("CLINIC PAYMENT RECEIPT", 20, 20);
-
   doc.setFontSize(12);
+
   doc.text(`Receipt ID : ${app.id}`, 20, 40);
   doc.text(`Patient : ${app.patient}`, 20, 50);
   doc.text(`Doctor : ${app.doctor}`, 20, 60);
@@ -328,3 +347,24 @@ function refreshAll() {
   loadPatients();
   loadAppointments();
 }
+function loadDoctorDashboard() {
+  const appointments = JSON.parse(localStorage.getItem("appointments"));
+  const doctorName = localStorage.getItem("currentUser");
+
+  const myApps = appointments.filter(a => a.doctor === doctorName);
+
+  $("doctor-appointments").innerText = myApps.length;
+  $("doctor-appointment-list").innerHTML = "";
+
+  myApps.forEach(a => {
+    $("doctor-appointment-list").innerHTML += `
+      <tr>
+        <td>${a.patient}</td>
+        <td>${new Date(a.date).toLocaleString()}</td>
+        <td>₹${a.fees}</td>
+        <td>${a.payment}</td>
+      </tr>
+    `;
+  });
+}
+
