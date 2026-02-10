@@ -327,18 +327,51 @@ function generateReceipt(app) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("CLINIC PAYMENT RECEIPT", 20, 20);
-  doc.setFontSize(12);
+  // ✅ OPTIONAL LOGO (safe)
+  const logoBase64 = ""; // leave empty OR paste valid base64
 
-  doc.text(`Receipt ID : ${app.id}`, 20, 40);
-  doc.text(`Patient : ${app.patient}`, 20, 50);
-  doc.text(`Doctor : ${app.doctor}`, 20, 60);
-  doc.text(`Fees : ₹${app.fees}`, 20, 70);
-  doc.text(`Payment : ${app.payment}`, 20, 80);
+  try {
+    if (logoBase64 && logoBase64.startsWith("data:image")) {
+      doc.addImage(logoBase64, "PNG", 80, 10, 50, 50);
+    }
+  } catch (e) {
+    console.warn("Logo not loaded, continuing without logo");
+  }
+
+  // TITLE
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("CLINIC PAYMENT RECEIPT", 105, 70, { align: "center" });
+
+  // LINE
+  doc.line(20, 75, 190, 75);
+
+  // CONTENT
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+
+  let y = 90;
+  doc.text(`Receipt ID   : ${app.id}`, 30, y); y += 10;
+  doc.text(`Patient Name : ${app.patient}`, 30, y); y += 10;
+  doc.text(`Doctor Name  : ${app.doctor}`, 30, y); y += 10;
+  doc.text(`Date & Time  : ${new Date(app.date).toLocaleString()}`, 30, y); y += 10;
+  doc.text(`Payment Mode : ${app.payment}`, 30, y); y += 10;
+
+  doc.setFont("helvetica", "bold");
+  doc.text(`Total Amount : ${app.fees}`, 30, y + 5);
+
+  // BOX
+  doc.rect(20, 80, 170, 70);
+
+  // FOOTER
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "italic");
+  doc.text("Thank you for visiting our clinic", 105, 165, { align: "center" });
+  doc.text("This is a system generated receipt", 105, 172, { align: "center" });
 
   doc.save(`${app.patient}_Receipt.pdf`);
 }
+
 
 /* ================= REFRESH ================= */
 function refreshAll() {
@@ -367,4 +400,3 @@ function loadDoctorDashboard() {
     `;
   });
 }
-
