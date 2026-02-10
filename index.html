@@ -28,7 +28,6 @@
 
       <select id="login-role">
         <option value="admin">Admin</option>
-        <option value="doctor">Doctor</option>
         <option value="receptionist">Receptionist</option>
       </select>
 
@@ -47,7 +46,6 @@
 
       <select id="reg-role">
         <option value="admin">Admin</option>
-        <option value="doctor">Doctor</option>
         <option value="receptionist">Receptionist</option>
       </select>
 
@@ -69,11 +67,8 @@
     <h3>🏥 Clinic</h3>
 
     <button data-view="dashboard">Dashboard</button>
-
-    <!-- hide for doctor via JS -->
     <button data-view="patients" data-role="admin receptionist">Patients</button>
     <button data-view="doctors" data-role="admin receptionist">Doctors</button>
-
     <button data-view="appointments">Appointments</button>
 
     <button id="logout">Logout</button>
@@ -85,6 +80,31 @@
     <!-- DASHBOARD -->
     <section id="dashboard" class="view">
       <h1>Dashboard</h1>
+      <!-- DOCTOR DASHBOARD -->
+<section id="doctor-dashboard" class="view hidden">
+  <h1>Doctor Dashboard</h1>
+
+  <div class="dashboard-cards">
+    <div class="dash-card">
+      My Appointments <span id="doctor-appointments">0</span>
+    </div>
+  </div>
+
+  <h3>Today Appointments</h3>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Date</th>
+        <th>Fees</th>
+        <th>Payment</th>
+      </tr>
+    </thead>
+    <tbody id="doctor-appointment-list"></tbody>
+  </table>
+</section>
+
 
       <div class="dashboard-cards">
         <div class="dash-card">
@@ -107,6 +127,15 @@
         <input id="p-name" placeholder="Name" required>
         <input id="p-age" type="number" placeholder="Age" required>
 
+        <select id="p-gender" required>
+          <option value="">Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <input id="p-complaint" placeholder="Complaint" required>
+
         <select id="p-doctor" required>
           <option value="">Select Doctor</option>
         </select>
@@ -119,7 +148,10 @@
           <tr>
             <th>Name</th>
             <th>Age</th>
+            <th>Gender</th>
+            <th>Complaint</th>
             <th>Doctor</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="patient-list"></tbody>
@@ -149,6 +181,7 @@
             <th>Name</th>
             <th>Specialty</th>
             <th>Availability</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="doctor-list"></tbody>
@@ -160,7 +193,6 @@
       <h2>Appointments & Payment</h2>
 
       <form id="appointment-form">
-
         <select id="a-patient" required>
           <option value="">Select Patient</option>
         </select>
