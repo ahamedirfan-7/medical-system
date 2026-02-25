@@ -1,30 +1,4 @@
-// ================= FIREBASE =================
-import { initializeApp } 
-  from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } 
-  from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-// Your Firebase configuration (PASTE YOUR API KEYS HERE)
-const firebaseConfig = {
-  apiKey: "AIzaSyDVfuNEBv8QpIh5WgB9AWmN588LMtlMCrM",
-  authDomain: "medical-system-1ae71.firebaseapp.com",
-  projectId: "medical-system-1ae71",
-  storageBucket: "medical-system-1ae71.firebasestorage.app",
-  messagingSenderId: "484151469236",
-  appId: "1:484151469236:web:ccfbbb5f518c47a507a3e1",
-  measurementId: "G-X9Q7YPZP7N"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Connect to Firestore
-const db = getFirestore(app);
-
-// Make Firestore helpers global so you can use later in script
-window.db = db;
-window.fb = { collection, addDoc, getDocs, deleteDoc, doc };
 /* ================= HELPER ================= */
 const $ = id => document.getElementById(id);
 
@@ -209,7 +183,7 @@ function deleteDoctor(i) {
 }
 
 /* ================= PATIENTS (🔥 FIXED) ================= */
-$("patient-form")?.addEventListener("submit", async e => {
+$("patient-form")?.addEventListener("submit", e => {
   e.preventDefault();
   const dIndex = $("p-doctor").value;
   if (!dIndex) return alert("Select doctor");
@@ -217,14 +191,14 @@ $("patient-form")?.addEventListener("submit", async e => {
   const patients = JSON.parse(localStorage.getItem("patients"));
   const doctors = JSON.parse(localStorage.getItem("doctors"));
 
-await fb.addDoc(fb.collection(db, "patients"), {
+  patients.push({
     name: $("p-name").value.trim(),
     age: $("p-age").value,
     gender: $("p-gender").value,
     complaint: $("p-complaint").value.trim(),
-    doctor: doctors[dIndex].name,
-    createdAt: new Date()
-});
+    doctor: doctors[dIndex].name
+  });
+
   localStorage.setItem("patients", JSON.stringify(patients));
   e.target.reset();
   refreshAll();
@@ -310,25 +284,17 @@ function confirmUPIPayment() {
   finalizeAppointment();
 }
 
-// Make the function async
-async function finalizeAppointment() {
-  try {
-    // Save the appointment to Firestore
-    await fb.addDoc(fb.collection(db, "appointments"), pendingAppointment);
+function finalizeAppointment() {
+  const appointments = JSON.parse(localStorage.getItem("appointments"));
+  appointments.push(pendingAppointment);
+  localStorage.setItem("appointments", JSON.stringify(appointments));
 
-    // Generate the PDF receipt
-    generateReceipt(pendingAppointment);
+  generateReceipt(pendingAppointment);
+  alert("Appointment booked & payment successful ✅");
 
-    alert("Appointment booked & payment successful ✅");
-
-    // Reset
-    pendingAppointment = null;
-    $("appointment-form").reset();
-    refreshAll();
-  } catch (err) {
-    console.error("Error saving appointment:", err);
-    alert("Failed to save appointment. Check console.");
-  }
+  pendingAppointment = null;
+  $("appointment-form").reset();
+  refreshAll();
 }
 
 /* ================= APPOINTMENT LIST ================= */
