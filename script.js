@@ -1,4 +1,3 @@
-
 /* ================= HELPER ================= */
 const $ = id => document.getElementById(id);
 
@@ -9,41 +8,34 @@ const $ = id => document.getElementById(id);
   }
 });
 
-/* ================= DEFAULT ADMIN ================= */
-const usersInit = JSON.parse(localStorage.getItem("users"));
-if (!usersInit.find(u => u.username === "admin")) {
-  usersInit.push({ username: "admin", password: "admin", role: "admin" });
-  localStorage.setItem("users", JSON.stringify(usersInit));
-}
-
 /* ================= PAGE LOAD ================= */
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("isLoggedIn") === "true") {
+
     document.body.classList.add("logged-in");
+
     $("auth-section").style.display = "none";
     $("app").style.display = "flex";
-   const role = localStorage.getItem("currentRole");
 
-if (role === "doctor") {
-  showView("doctor-dashboard");
-  loadDoctorDashboard();
-} else {
-  showView("dashboard");
-}
+    showView("dashboard");
 
     refreshAll();
   }
 });
 
 /* ================= AUTH ================= */
+
 function toggleAuth() {
   $("login-form").classList.toggle("hidden");
   $("register-form").classList.toggle("hidden");
 }
 
 /* REGISTER */
+
 $("register-form")?.addEventListener("submit", e => {
+
   e.preventDefault();
+
   const users = JSON.parse(localStorage.getItem("users"));
   const username = $("reg-username").value.trim();
 
@@ -55,23 +47,27 @@ $("register-form")?.addEventListener("submit", e => {
   users.push({
     username,
     password: $("reg-password").value,
-    role: $("reg-role").value
+    role: "receptionist"
   });
 
   localStorage.setItem("users", JSON.stringify(users));
+
   $("register-msg").innerText = "✅ Account created";
+
   e.target.reset();
 });
 
 /* LOGIN */
+
 $("login-form")?.addEventListener("submit", e => {
+
   e.preventDefault();
+
   const users = JSON.parse(localStorage.getItem("users"));
 
   const user = users.find(u =>
     u.username === $("login-username").value.trim() &&
-    u.password === $("login-password").value &&
-    u.role === $("login-role").value
+    u.password === $("login-password").value
   );
 
   if (!user) {
@@ -80,69 +76,67 @@ $("login-form")?.addEventListener("submit", e => {
   }
 
   localStorage.setItem("isLoggedIn", "true");
+  localStorage.setItem("currentUser", user.username);
+
   document.body.classList.add("logged-in");
 
   $("auth-section").style.display = "none";
   $("app").style.display = "flex";
-const role = user.role;
-localStorage.setItem("currentRole", role);
-localStorage.setItem("currentUser", user.username);
 
-if (role === "doctor") {
-  showView("doctor-dashboard");
-  loadDoctorDashboard();
-} else {
   showView("dashboard");
-}
 
   refreshAll();
 });
 
 /* LOGOUT */
+
 $("logout")?.addEventListener("click", () => {
+
   localStorage.removeItem("isLoggedIn");
   document.body.classList.remove("logged-in");
+
   location.reload();
 });
 
-/* ================= NAV ================= */
+/* ================= NAVIGATION ================= */
+
 function showView(id) {
-  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+
+  document.querySelectorAll(".view").forEach(v => {
+    v.classList.add("hidden");
+  });
+
   $(id).classList.remove("hidden");
 
   if (id === "appointments") {
-    const pay = $("a-payment");
-    if (pay) pay.onchange = handlePaymentUI;
+    $("a-payment").onchange = handlePaymentUI;
   }
 }
 
 document.querySelectorAll("[data-view]").forEach(btn => {
-  btn.onclick = () => {
-    const role = localStorage.getItem("currentRole");
-
-    if (role === "doctor" && btn.dataset.view === "dashboard") {
-      showView("doctor-dashboard");
-      loadDoctorDashboard();
-    } else {
-      showView(btn.dataset.view);
-    }
-  };
+  btn.onclick = () => showView(btn.dataset.view);
 });
 
-
 /* ================= DASHBOARD ================= */
+
 function loadDashboard() {
+
   $("total-patients").innerText =
     JSON.parse(localStorage.getItem("patients")).length;
+
   $("total-doctors").innerText =
     JSON.parse(localStorage.getItem("doctors")).length;
+
   $("total-appointments").innerText =
     JSON.parse(localStorage.getItem("appointments")).length;
 }
 
 /* ================= DOCTORS ================= */
+
 $("doctor-form")?.addEventListener("submit", e => {
+
   e.preventDefault();
+
   const doctors = JSON.parse(localStorage.getItem("doctors"));
 
   doctors.push({
@@ -152,40 +146,57 @@ $("doctor-form")?.addEventListener("submit", e => {
   });
 
   localStorage.setItem("doctors", JSON.stringify(doctors));
+
   e.target.reset();
+
   refreshAll();
 });
 
 function loadDoctors() {
+
   const doctors = JSON.parse(localStorage.getItem("doctors"));
+
   $("doctor-list").innerHTML = "";
+
   $("p-doctor").innerHTML = "<option value=''>Select Doctor</option>";
   $("a-doctor").innerHTML = "<option value=''>Select Doctor</option>";
 
   doctors.forEach((d, i) => {
+
     $("doctor-list").innerHTML += `
       <tr>
         <td>${d.name}</td>
         <td>${d.specialty}</td>
         <td>${d.availability}</td>
         <td><button onclick="deleteDoctor(${i})">🗑</button></td>
-      </tr>`;
+      </tr>
+    `;
+
     $("p-doctor").add(new Option(d.name, i));
     $("a-doctor").add(new Option(d.name, i));
+
   });
 }
 
 function deleteDoctor(i) {
+
   const doctors = JSON.parse(localStorage.getItem("doctors"));
+
   doctors.splice(i, 1);
+
   localStorage.setItem("doctors", JSON.stringify(doctors));
+
   refreshAll();
 }
 
-/* ================= PATIENTS (🔥 FIXED) ================= */
+/* ================= PATIENTS ================= */
+
 $("patient-form")?.addEventListener("submit", e => {
+
   e.preventDefault();
+
   const dIndex = $("p-doctor").value;
+
   if (!dIndex) return alert("Select doctor");
 
   const patients = JSON.parse(localStorage.getItem("patients"));
@@ -200,38 +211,51 @@ $("patient-form")?.addEventListener("submit", e => {
   });
 
   localStorage.setItem("patients", JSON.stringify(patients));
+
   e.target.reset();
+
   refreshAll();
 });
 
 function loadPatients() {
+
   const patients = JSON.parse(localStorage.getItem("patients"));
+
   $("patient-list").innerHTML = "";
   $("a-patient").innerHTML = "<option value=''>Select Patient</option>";
 
   patients.forEach((p, i) => {
+
     $("patient-list").innerHTML += `
       <tr>
         <td>${p.name}</td>
         <td>${p.age}</td>
-        <td>${p.gender || "-"}</td>
-        <td>${p.complaint || "-"}</td>
+        <td>${p.gender}</td>
+        <td>${p.complaint}</td>
         <td>${p.doctor}</td>
         <td><button onclick="deletePatient(${i})">🗑</button></td>
-      </tr>`;
+      </tr>
+    `;
+
     $("a-patient").add(new Option(p.name, i));
   });
 }
 
 function deletePatient(i) {
+
   const patients = JSON.parse(localStorage.getItem("patients"));
+
   patients.splice(i, 1);
+
   localStorage.setItem("patients", JSON.stringify(patients));
+
   refreshAll();
 }
 
 /* ================= PAYMENT UI ================= */
+
 function handlePaymentUI() {
+
   $("card-box").classList.add("hidden");
   $("qr-box").classList.add("hidden");
 
@@ -241,9 +265,11 @@ function handlePaymentUI() {
 }
 
 /* ================= APPOINTMENTS ================= */
+
 let pendingAppointment = null;
 
 $("appointment-form")?.addEventListener("submit", e => {
+
   e.preventDefault();
 
   const p = $("a-patient").value;
@@ -268,41 +294,58 @@ $("appointment-form")?.addEventListener("submit", e => {
   };
 
   if (payment === "UPI") {
+
     $("qr-box").classList.remove("hidden");
+
     QRCode.toCanvas(
       $("qr-code"),
       `upi://pay?pa=clinic@upi&am=${fees}&cu=INR`,
       { width: 200 }
     );
+
   } else {
+
     finalizeAppointment();
+
   }
 });
 
 function confirmUPIPayment() {
+
   $("qr-box").classList.add("hidden");
+
   finalizeAppointment();
 }
 
 function finalizeAppointment() {
+
   const appointments = JSON.parse(localStorage.getItem("appointments"));
+
   appointments.push(pendingAppointment);
+
   localStorage.setItem("appointments", JSON.stringify(appointments));
 
   generateReceipt(pendingAppointment);
+
   alert("Appointment booked & payment successful ✅");
 
   pendingAppointment = null;
+
   $("appointment-form").reset();
+
   refreshAll();
 }
 
 /* ================= APPOINTMENT LIST ================= */
+
 function loadAppointments() {
+
   const appointments = JSON.parse(localStorage.getItem("appointments"));
+
   $("appointment-list").innerHTML = "";
 
   appointments.forEach((a, i) => {
+
     $("appointment-list").innerHTML += `
       <tr>
         <td>${a.patient}</td>
@@ -311,93 +354,127 @@ function loadAppointments() {
         <td>₹${a.fees}</td>
         <td>${a.payment}</td>
         <td><button onclick="deleteAppointment(${i})">🗑</button></td>
-      </tr>`;
+      </tr>
+    `;
   });
 }
 
 function deleteAppointment(i) {
+
   if (!confirm("Delete this appointment?")) return;
+
   const appointments = JSON.parse(localStorage.getItem("appointments"));
+
   appointments.splice(i, 1);
+
   localStorage.setItem("appointments", JSON.stringify(appointments));
+
   refreshAll();
 }
 
 /* ================= RECEIPT ================= */
-function generateReceipt(app) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
 
-  // ✅ OPTIONAL LOGO (safe)
-  const logoBase64 = ""; // leave empty OR paste valid base64
+function generateReceipt(data){
 
-  try {
-    if (logoBase64 && logoBase64.startsWith("data:image")) {
-      doc.addImage(logoBase64, "PNG", 80, 10, 50, 50);
-    }
-  } catch (e) {
-    console.warn("Logo not loaded, continuing without logo");
-  }
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
 
-  // TITLE
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("CLINIC PAYMENT RECEIPT", 105, 70, { align: "center" });
+let y = 20;
 
-  // LINE
-  doc.line(20, 75, 190, 75);
+// Clinic Title
+doc.setFontSize(20);
+doc.text("SMART CLINIC", 105, y, {align:"center"});
 
-  // CONTENT
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
+y+=8;
 
-  let y = 90;
-  doc.text(`Receipt ID   : ${app.id}`, 30, y); y += 10;
-  doc.text(`Patient Name : ${app.patient}`, 30, y); y += 10;
-  doc.text(`Doctor Name  : ${app.doctor}`, 30, y); y += 10;
-  doc.text(`Date & Time  : ${new Date(app.date).toLocaleString()}`, 30, y); y += 10;
-  doc.text(`Payment Mode : ${app.payment}`, 30, y); y += 10;
+doc.setFontSize(10);
+doc.text("No 3, Jamal Street, Race course Road, Trichy-620020",105,y,{align:"center"});
+y+=5;
+doc.text("Phone: +91 9876543210",105,y,{align:"center"});
 
-  doc.setFont("helvetica", "bold");
-  doc.text(`Total Amount : ${app.fees}`, 30, y + 5);
+y+=10;
 
-  // BOX
-  doc.rect(20, 80, 170, 70);
+// Line
+doc.line(10,y,200,y);
 
-  // FOOTER
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  doc.text("Thank you for visiting our clinic", 105, 165, { align: "center" });
-  doc.text("This is a system generated receipt", 105, 172, { align: "center" });
+y+=10;
 
-  doc.save(`${app.patient}_Receipt.pdf`);
+// Receipt Info
+doc.setFontSize(12);
+
+doc.text("Receipt ID:",10,y);
+doc.text("RCPT-"+Date.now(),50,y);
+
+doc.text("Date:",140,y);
+doc.text(new Date().toLocaleDateString(),160,y);
+
+y+=10;
+
+doc.line(10,y,200,y);
+
+y+=10;
+
+// Patient Info
+doc.text("Patient Name:",10,y);
+doc.text(data.patient,60,y);
+
+y+=10;
+
+doc.text("Doctor:",10,y);
+doc.text(data.doctor,60,y);
+
+y+=10;
+
+doc.text("Appointment Date:",10,y);
+doc.text(data.date,60,y);
+
+y+=10;
+
+doc.line(10,y,200,y);
+
+y+=10;
+
+// Payment
+doc.setFontSize(14);
+doc.text("Payment Details",10,y);
+
+y+=10;
+
+doc.setFontSize(12);
+
+doc.text("Consultation Fees:",10,y);
+doc.text("Rs. "+data.fees,80,y);
+
+y+=10;
+
+doc.text("Payment Method:",10,y);
+doc.text(data.payment,80,y);
+
+y+=10;
+
+doc.line(10,y,200,y);
+
+y+=15;
+
+// Footer
+doc.setFontSize(10);
+doc.text("Thank you for visiting our clinic!",105,y,{align:"center"});
+
+y+=5;
+doc.text("Get well soon !",105,y,{align:"center"});
+
+// Save
+doc.save("clinic_receipt.pdf");
+
+
 }
 
-
 /* ================= REFRESH ================= */
+
 function refreshAll() {
+
   loadDashboard();
   loadDoctors();
   loadPatients();
   loadAppointments();
-}
-function loadDoctorDashboard() {
-  const appointments = JSON.parse(localStorage.getItem("appointments"));
-  const doctorName = localStorage.getItem("currentUser");
-
-  const myApps = appointments.filter(a => a.doctor === doctorName);
-
-  $("doctor-appointments").innerText = myApps.length;
-  $("doctor-appointment-list").innerHTML = "";
-
-  myApps.forEach(a => {
-    $("doctor-appointment-list").innerHTML += `
-      <tr>
-        <td>${a.patient}</td>
-        <td>${new Date(a.date).toLocaleString()}</td>
-        <td>₹${a.fees}</td>
-        <td>${a.payment}</td>
-      </tr>
-    `;
-  });
 }
